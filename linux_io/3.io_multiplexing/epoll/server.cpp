@@ -42,11 +42,12 @@ void MakeFdNonblocking(int &fd){
 int EpollINET(int sfd, bool etMode){
     signal(SIGPIPE, SIG_IGN);
 
-    //创建一个epoll，后面的size是给系统的建议初始size，并不是指定固定的size
+    //step1.创建一个epoll，后面的size是给系统的建议初始size，并不是指定固定的size
     int efd = epoll_create(10);
     uint32_t event = etMode ? EPOLLIN|EPOLLET : EPOLLIN;
     if(etMode) MakeFdNonblocking(sfd);
     epoll_event ev{ event, {.fd=sfd} };
+    //step2.向epoll中注册server fd
     if(epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &ev) != 0) handle_error("epoll add");
     //存储各种unistd函数的返回值
     int ret = 0;
@@ -61,7 +62,7 @@ int EpollINET(int sfd, bool etMode){
     while (1)
     {
         printf("start epoll \n");
-        //-1无限阻塞，相当于select的time传个nullptr
+        //step3.epoll阻塞等待事件发生，ret返回的是有io事件发生的个数。 -1无限阻塞，相当于select的time传个nullptr
         ret = epoll_wait(efd, evs, EPOLL_MAX_EVENTS, -1);
         printf("epoll ret: %d \n", ret);
         //超时才会为0，永久等待这里一般是不会为0的，直接continue
@@ -79,6 +80,7 @@ int EpollINET(int sfd, bool etMode){
                 continue;
             }
             printf("read fd: %d\n", cfd);
+            //step4.读取有io事件发生的fd上的数据，server socket和client socket分不同情况处理
             //有数据，对于监听socket，执行accept操作，对于数据socket，执行接收数据操作
             if(cfd == sfd){
                 int cfd = accept(sfd, (struct sockaddr*)&addr, &addr_len);
