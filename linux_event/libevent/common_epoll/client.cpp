@@ -44,8 +44,10 @@ void connect_and_send(){
 }
 
 int main(){
-    std::thread t1(connect_and_send);
-    std::thread t2(connect_and_send);
-    t1.join();
-    t2.join();
+    int thread_num = 10;
+    for(int i=0;i<thread_num;i++){
+        std::thread t(connect_and_send);
+        t.detach();
+    }
+    sleep(20);
 }
