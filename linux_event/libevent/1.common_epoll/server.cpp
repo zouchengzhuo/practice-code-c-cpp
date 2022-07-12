@@ -29,10 +29,8 @@ void handle_data(int efd, int cfd, epoll_event *ev){
     //连接关闭，或者出错，从epoll中移除监听并关闭fd
     //这里如果是非阻塞socket，那么-1时不应该执行此操作
     if(size == 0 || size == -1){
-        if(epoll_ctl(efd, EPOLL_CTL_DEL, cfd, ev) != 0){
-            close(cfd);
-            handle_error("epoll del fail");
-        }
+        if(epoll_ctl(efd, EPOLL_CTL_DEL, cfd, ev) != 0) handle_error("epoll del fail");
+        close(cfd);
         return;
     }
     printf("<---: %s \n", buf);

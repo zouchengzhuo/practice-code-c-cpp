@@ -19,7 +19,12 @@ void bind_reacotr_event(epoll_event *ev, int fd, void (*callback)(int efd, epoll
     ev->data.ptr = rev;
 }
 
-void handle_data(int efd, epoll_event *ev){
+void unbind_reactor_event(epoll_event *ev){
+    free(ev->data.ptr);
+    ev->data.ptr = nullptr;
+}
+
+void data_handler(int efd, epoll_event *ev){
     reactor_event *rev = (reactor_event*)ev->data.ptr;
     int cfd = rev->fd;
     char buf[1024];
@@ -28,10 +33,9 @@ void handle_data(int efd, epoll_event *ev){
     //连接关闭，或者出错，从epoll中移除监听并关闭fd
     //这里如果是非阻塞socket，那么-1时不应该执行此操作
     if(size == 0 || size == -1){
-        if(epoll_ctl(efd, EPOLL_CTL_DEL, cfd, ev) != 0){
-            close(cfd);
-            handle_error("epoll del fail");
-        }
+        if(epoll_ctl(efd, EPOLL_CTL_DEL, cfd, ev) != 0) handle_error("epoll del fail");
+        unbind_reactor_event(ev);
+        close(cfd);
         return;
     }
     printf("<---: %s \n", buf);
@@ -41,7 +45,7 @@ void handle_data(int efd, epoll_event *ev){
     printf("--->: %s \n", buf);
 }
 
-void handle_connection(int efd, epoll_event *ev){
+void connection_handler(int efd, epoll_event *ev){
     //接收客户端连接
     reactor_event *rev = (reactor_event*)ev->data.ptr;
     sockaddr_in addr;
@@ -51,7 +55,7 @@ void handle_connection(int efd, epoll_event *ev){
     //绑定到epoll监听
     epoll_event bev;
     bev.events = EPOLLIN;
-    bind_reacotr_event(&bev, cfd, handle_data);
+    bind_reacotr_event(&bev, cfd, data_handler);
     int ret = epoll_ctl(efd, EPOLL_CTL_ADD, cfd, &bev);
     if(ret != 0) handle_error("epoll add client fd fail");
     printf("accept client fd %d\n", cfd);
@@ -76,7 +80,7 @@ int main(){
     //step3. 将 sfd 添加到 epoll 监听
     epoll_event ev;
     ev.events = EPOLLIN | EPOLLOUT;
-    bind_reacotr_event(&ev, sfd, handle_connection);
+    bind_reacotr_event(&ev, sfd, connection_handler);
     ret = epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &ev);
     if(ret != 0) handle_error("epoll add fail");
     //step4. 循环调用 epoll wait
