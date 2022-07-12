@@ -15,7 +15,7 @@ void handle_connection(int efd, int sfd){
     if(cfd == -1) handle_error("accept fail");
     //绑定到epoll监听
     epoll_event ev;
-    ev.events = EPOLLIN | EPOLLOUT;
+    ev.events = EPOLLIN;
     ev.data.fd = cfd;
     int ret = epoll_ctl(efd, EPOLL_CTL_ADD, cfd, &ev);
     if(ret != 0) handle_error("epoll add client fd fail");
