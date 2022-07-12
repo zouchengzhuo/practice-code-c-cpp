@@ -1,0 +1,6 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory '/root/learn/practice-code-c-cpp'
+make: Leaving directory '/root/learn/practice-code-c-cpp'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+

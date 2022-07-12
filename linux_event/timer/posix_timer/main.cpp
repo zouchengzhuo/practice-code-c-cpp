@@ -1,6 +1,6 @@
 #include <unistd.h>
 #include <iostream>
-#include <signal.h>           /* Definition of SIGEV_* constants */
+#include <signal.h>
 #include <time.h>
 
 //通过信号 handler 触发
