@@ -13,15 +13,15 @@
 WorkerPool pool(10);
 
 struct reactor_event {
-    int efd; //epoll fd
-    int fd;  //被监听的fd
+    int epoll_fd; //epoll fd
+    int client_fd;  //被监听的fd
     void (*callback)(epoll_event *ev); //回调函数
 };
 
 void bind_reacotr_event(epoll_event *ev, int efd, int fd, void (*callback)(epoll_event *ev)){
-    reactor_event *rev = (reactor_event*)malloc(sizeof(reactor_event));
-    rev->fd = fd;
-    rev->efd = efd;
+    reactor_event *rev = new reactor_event();
+    rev->client_fd = fd;
+    rev->epoll_fd = efd;
     rev->callback = callback;
     ev->data.ptr = rev;
 }
@@ -33,9 +33,9 @@ void unbind_reactor_event(epoll_event *ev){
 
 void data_handler(epoll_event *ev){
     reactor_event *rev = (reactor_event*)ev->data.ptr;
-    int efd = rev->efd;
-    int cfd = rev->fd;
-    char buf[1024];
+    int efd = rev->epoll_fd;
+    int cfd = rev->client_fd;
+    char *buf = (char*)malloc(1024);
     while (1)
     {
         bzero(buf, sizeof(buf));
@@ -50,7 +50,8 @@ void data_handler(epoll_event *ev){
             return;
         }
         if(size == -1){
-            if(errno == EWOULDBLOCK || errno == EAGAIN){
+            int eno = errno;
+            if(eno == EWOULDBLOCK || eno == EAGAIN){
                 break;
             }
             handle_error("recv fail");
@@ -67,7 +68,7 @@ void data_handler(epoll_event *ev){
 
 void data_handler_by_worker(epoll_event *ev){
     reactor_event* rev = (reactor_event*)(ev->data.ptr);
-    printf("add to queue fd %d events: %u\n",rev->fd, ev->events);
+    printf("add to queue fd %d events: %u\n",rev->client_fd, ev->events);
     pool.addQueue([ev]{
         data_handler(ev);
     });
@@ -75,15 +76,16 @@ void data_handler_by_worker(epoll_event *ev){
 void connection_handler(epoll_event *ev){
     //接收客户端连接
     reactor_event *rev = (reactor_event*)ev->data.ptr;
-    int efd = rev->efd;
+    int efd = rev->epoll_fd;
     sockaddr_in addr;
     socklen_t addr_len = sizeof(addr);
     int cfd = 0;
     while (1)
     {
-        cfd = accept(rev->fd, (sockaddr*)&addr, &addr_len);
+        cfd = accept(rev->client_fd, (sockaddr*)&addr, &addr_len);
         if(cfd == -1){
-            if(errno == EWOULDBLOCK || errno == EAGAIN){
+            int eno = errno;
+            if(eno == EWOULDBLOCK || eno == EAGAIN){
                 break;
             }
             handle_error("accept fail");

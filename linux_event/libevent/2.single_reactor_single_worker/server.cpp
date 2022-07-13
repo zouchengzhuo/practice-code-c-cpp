@@ -8,13 +8,13 @@
 #define handle_error(msg)  do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 struct reactor_event {
-    int fd;
+    int client_fd;
     void (*callback)(int efd, epoll_event *ev);
 };
 
 void bind_reacotr_event(epoll_event *ev, int fd, void (*callback)(int efd, epoll_event *ev)){
     reactor_event *rev = (reactor_event*)malloc(sizeof(reactor_event));
-    rev->fd = fd;
+    rev->client_fd = fd;
     rev->callback = callback;
     ev->data.ptr = rev;
 }
@@ -26,7 +26,7 @@ void unbind_reactor_event(epoll_event *ev){
 
 void data_handler(int efd, epoll_event *ev){
     reactor_event *rev = (reactor_event*)ev->data.ptr;
-    int cfd = rev->fd;
+    int cfd = rev->client_fd;
     char buf[1024];
     bzero(&buf, sizeof(buf));
     int size = recv(cfd, buf, sizeof(buf), 0);
@@ -52,7 +52,7 @@ void connection_handler(int efd, epoll_event *ev){
     reactor_event *rev = (reactor_event*)ev->data.ptr;
     sockaddr_in addr;
     socklen_t addr_len = sizeof(addr);
-    int cfd = accept(rev->fd, (sockaddr*)&addr, &addr_len);
+    int cfd = accept(rev->client_fd, (sockaddr*)&addr, &addr_len);
     if(cfd == -1) handle_error("accept fail");
     //绑定到epoll监听
     epoll_event bev;
