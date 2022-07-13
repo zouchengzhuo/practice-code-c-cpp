@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Jul 12 06:55:03 2022
+# Make data base, printed on Wed Jul 13 05:01:52 2022
 
 # Variables
 
@@ -67,7 +67,6 @@ SSH_AUTH_SOCK = /tmp/vscode-ssh-auth-74db0388303291d0795176e7966cfb563846f945.so
 # automatic
 %F = $(notdir $%)
 # environment
- 
 VSCODE_PIPE_LOGGING = true
 # environment
 PWD = /root/learn/practice-code-c-cpp
@@ -184,6 +183,7 @@ Makefile:
 #  Implicit rule search has been done.
 #  File does not exist.
 #  File has been updated.
+ 
 #  Failed to be updated.
 
 # Not a target:
@@ -220,6 +220,6 @@ GNUmakefile:
 # strcache performance: lookups = 27 / hit rate = 11%
 # hash-table stats:
 # Load=24/8192=0%, Rehash=0, Collisions=1/27=4%
-# Finished Make data base on Tue Jul 12 06:55:03 2022
+# Finished Make data base on Wed Jul 13 05:01:52 2022
 
  

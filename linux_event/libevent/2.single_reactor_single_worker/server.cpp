@@ -39,6 +39,8 @@ void data_handler(int efd, epoll_event *ev){
         return;
     }
     printf("<---: %s \n", buf);
+    //测试：单reactor单worker，sleep 1s 再返回，qps急剧下降
+    sleep(1);
     //原样返回
     size = send(cfd, buf, sizeof(buf), 0);
     if(size == -1) handle_error("send to client fail");

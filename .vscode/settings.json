@@ -36,6 +36,13 @@
         "ostream": "cpp",
         "streambuf": "cpp",
         "string_view": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "atomic": "cpp",
+        "condition_variable": "cpp",
+        "deque": "cpp",
+        "future": "cpp",
+        "mutex": "cpp",
+        "numeric": "cpp",
+        "functional": "cpp"
     }
 }
