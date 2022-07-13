@@ -10,7 +10,7 @@
 
 #define handle_error(msg)  do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
-WorkerPool pool(1);
+WorkerPool pool(10);
 
 struct reactor_event {
     int efd; //epoll fd
@@ -35,10 +35,10 @@ void data_handler(epoll_event *ev){
     reactor_event *rev = (reactor_event*)ev->data.ptr;
     int efd = rev->efd;
     int cfd = rev->fd;
-    char buf[100];
-    bzero(buf, sizeof(buf));
+    char buf[1024];
     while (1)
     {
+        bzero(buf, sizeof(buf));
         int size = recv(cfd, buf, sizeof(buf), 0);
         //连接关闭，从epoll中移除监听并关闭fd
         if(size == 0){
@@ -93,7 +93,7 @@ void connection_handler(epoll_event *ev){
         fcntl(cfd, F_SETFL, origin_flags|O_NONBLOCK);
         //绑定到epoll监听
         epoll_event bev;
-        bev.events = EPOLLIN;
+        bev.events = EPOLLIN|EPOLLET;
         //绑定线程池worker，加快任务处理速度
         //bind_reacotr_event(&bev, efd, cfd, data_handler);
         bind_reacotr_event(&bev, efd, cfd, data_handler_by_worker);
