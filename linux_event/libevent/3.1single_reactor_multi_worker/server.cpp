@@ -19,8 +19,8 @@ struct reactor_event {
     int epoll_fd; //epoll fd
     int client_fd;  //被监听的fd
     int rsp_event_fd; //有处理完毕的请求，通知响应的 event fd
-    SafeQueue<std::string> *req_queue;
-    SafeQueue<std::string> *rsp_queue;
+    std::shared_ptr<SafeQueue<std::string>> req_queue;
+    std::shared_ptr<SafeQueue<std::string>> rsp_queue;
     void (*callback)(epoll_event *ev); //回调函数
 
 };
@@ -33,19 +33,14 @@ void bind_reacotr_event(epoll_event *ev, int epoll_fd, int client_fd, int rsp_ev
     rev->epoll_fd = epoll_fd;
     rev->rsp_event_fd = rsp_event_fd;
     rev->callback = callback;
-    rev->req_queue = req_queue;
-    rev->rsp_queue = rsp_queue;
+    rev->req_queue = std::shared_ptr<SafeQueue<std::string>>(req_queue);
+    rev->rsp_queue = std::shared_ptr<SafeQueue<std::string>>(rsp_queue);;
     ev->data.ptr = rev;
     //printf("reactor_event of fd %d is %p\n", client_fd, rev);
 }
 
 void unbind_reactor_event(epoll_event *ev){
-    reactor_event *rev = new reactor_event();
-    free(rev->req_queue);
-    free(rev->rsp_queue);
     free(ev->data.ptr);
-    rev->req_queue = nullptr;
-    rev->rsp_queue = nullptr;
     ev->data.ptr = nullptr;
 }
 
@@ -103,7 +98,7 @@ void data_handler_by_worker(epoll_event *ev){
             printf("close fd:%d\n", cfd);
             close(cfd);
             close(rspfd);
-            //unbind_reactor_event(ev);//TODO：eventfd 的 epoll_event也需要释放，这里暂时不做
+            unbind_reactor_event(ev);//TODO：eventfd 的 epoll_event也需要释放，这里暂时不做
             return;
         }
         if(size == -1){

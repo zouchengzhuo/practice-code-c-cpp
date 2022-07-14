@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Jul 13 05:01:52 2022
+# Make data base, printed on Thu Jul 14 01:54:44 2022
 
 # Variables
 
@@ -53,17 +53,17 @@ VSCODE_CWD = /root/.vscode-server/bin/30d9c6cd9483b2cc586687151bcbcd635f373630
 # default
 MAKE_HOST := aarch64-redhat-linux-gnu
 # environment
-PATH = /root/.nvm/versions/node/v18.1.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/bin
+PATH = /root/.vscode-server/bin/30d9c6cd9483b2cc586687151bcbcd635f373630/bin/remote-cli:/root/.nvm/versions/node/v18.1.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/bin
 # environment
 NVM_BIN = /root/.nvm/versions/node/v18.1.0/bin
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-f622df57-0545-4c4e-8c54-6448163dd030.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-236c3126-a4b8-4b2d-b9dc-78ad4114c5d4.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
-SSH_AUTH_SOCK = /tmp/vscode-ssh-auth-74db0388303291d0795176e7966cfb563846f945.sock
+SSH_AUTH_SOCK = /tmp/vscode-ssh-auth-7d512860bcab9d67600690365856e5838c3fd325.sock
 # automatic
 %F = $(notdir $%)
 # environment
@@ -81,7 +81,7 @@ REMOTE_CONTAINERS = true
 # environment
 LOGNAME = root
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # environment
 NVM_CD_FLAGS = 
 # automatic
@@ -109,7 +109,7 @@ USER = root
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # environment
-REMOTE_CONTAINERS_IPC = /tmp/vscode-remote-containers-ipc-74db0388303291d0795176e7966cfb563846f945.sock
+REMOTE_CONTAINERS_IPC = /tmp/vscode-remote-containers-ipc-7d512860bcab9d67600690365856e5838c3fd325.sock
 # default
 MAKE_COMMAND := make
 # default
@@ -143,7 +143,7 @@ SUFFIXES :=
 # environment
 HISTSIZE = 1000
 # environment
-REMOTE_CONTAINERS_SOCKETS = ["/tmp/vscode-ssh-auth-74db0388303291d0795176e7966cfb563846f945.sock"]
+REMOTE_CONTAINERS_SOCKETS = ["/tmp/vscode-ssh-auth-7d512860bcab9d67600690365856e5838c3fd325.sock"]
 # default
 .INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
 # default
@@ -163,6 +163,7 @@ VSCODE_EXTHOST_WILL_SEND_SOCKET = true
 
 # . (device 155, inode 3932254): 16 files, no impossibilities.
 
+ 
 # 16 files, no impossibilities in 1 directories.
 
 # Implicit Rules
@@ -183,7 +184,6 @@ Makefile:
 #  Implicit rule search has been done.
 #  File does not exist.
 #  File has been updated.
- 
 #  Failed to be updated.
 
 # Not a target:
@@ -220,6 +220,6 @@ GNUmakefile:
 # strcache performance: lookups = 27 / hit rate = 11%
 # hash-table stats:
 # Load=24/8192=0%, Rehash=0, Collisions=1/27=4%
-# Finished Make data base on Wed Jul 13 05:01:52 2022
+# Finished Make data base on Thu Jul 14 01:54:44 2022
 
  

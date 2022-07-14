@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-07-13 09:30:17
  * @LastEditors: czzou
- * @LastEditTime: 2022-07-13 15:24:50
+ * @LastEditTime: 2022-07-14 02:04:16
  * @FilePath: /practice-code-c-cpp/linux_event/libevent/3.1single_reactor_multi_worker/SafeQueue.h
  */
 #ifndef __SAFE_QUEUE_H__
@@ -16,11 +16,7 @@ template <class T>
 class SafeQueue
 {
 public:
-  SafeQueue(void)
-    : q()
-    , m()
-    , c()
-  {}
+  SafeQueue(){}
 
   ~SafeQueue(void)
   {}
@@ -66,7 +62,7 @@ public:
 
 private:
   std::queue<T> q;
-  mutable std::mutex m;
+  std::mutex m;
   std::condition_variable c;
 };
 #endif
