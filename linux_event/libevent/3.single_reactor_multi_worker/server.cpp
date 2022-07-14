@@ -18,6 +18,13 @@ struct reactor_event {
     void (*callback)(epoll_event *ev); //回调函数
 };
 
+void epoll_ctl_delete_fd(int efd, int cfd){
+    printf("EPOLL_CTL_DEL fd:%d\n", cfd);
+    if(epoll_ctl(efd, EPOLL_CTL_DEL, cfd, nullptr) != 0) perror("epoll del fail");
+    printf("close fd:%d\n", cfd);
+    close(cfd);
+}
+
 void bind_reacotr_event(epoll_event *ev, int efd, int fd, void (*callback)(epoll_event *ev)){
     reactor_event *rev = new reactor_event();
     rev->client_fd = fd;
@@ -31,11 +38,10 @@ void unbind_reactor_event(epoll_event *ev){
     ev->data.ptr = nullptr;
 }
 
-void data_handler(epoll_event *ev){
-    reactor_event *rev = (reactor_event*)ev->data.ptr;
+void data_handler(reactor_event *rev){
     int efd = rev->epoll_fd;
     int cfd = rev->client_fd;
-    char *buf = (char*)malloc(1024);
+    char buf[1024];
     while (1)
     {
         bzero(buf, sizeof(buf));
@@ -43,10 +49,7 @@ void data_handler(epoll_event *ev){
         //连接关闭，从epoll中移除监听并关闭fd
         if(size == 0){
             //这里先 DEL 再 close，DEL操作有一定几率因为fd已经被close而报错，看着像执行语句被重排了
-            printf("EPOLL_CTL_DEL fd:%d\n", cfd);
-            if(epoll_ctl(efd, EPOLL_CTL_DEL, cfd, ev) != 0) handle_error("epoll del fail");
-            printf("close fd:%d\n", cfd);
-            close(cfd);
+            epoll_ctl_delete_fd(efd, cfd);
             return;
         }
         if(size == -1){
@@ -54,7 +57,9 @@ void data_handler(epoll_event *ev){
             if(eno == EWOULDBLOCK || eno == EAGAIN){
                 break;
             }
-            handle_error("recv fail");
+            printf("read cfd %d errno %d\n", cfd, eno);
+            epoll_ctl_delete_fd(efd, cfd);
+            return;
         }
         printf("%d<---: %s \n", cfd, buf);
         //测试：单reactor单worker，sleep 1s 再返回，qps急剧下降
@@ -69,8 +74,8 @@ void data_handler(epoll_event *ev){
 void data_handler_by_worker(epoll_event *ev){
     reactor_event* rev = (reactor_event*)(ev->data.ptr);
     printf("add to queue fd %d events: %u\n",rev->client_fd, ev->events);
-    pool.addQueue([ev]{
-        data_handler(ev);
+    pool.addQueue([=]{
+        data_handler(rev);
     });
 }
 void connection_handler(epoll_event *ev){
@@ -130,7 +135,7 @@ int main(){
     ret = epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &ev);
     if(ret != 0) handle_error("epoll add fail");
     //step4. 循环调用 epoll wait
-    epoll_event evs[1];
+    epoll_event evs[10];
     int ev_num = 0;
     while (1)
     {
@@ -141,10 +146,14 @@ int main(){
         printf("epoll event num: %d\n", ev_num);
         //这种场景其实用边缘触发是最好的， 不然epoll一直在触发
         while (i < ev_num){
-            epoll_event* ev = &evs[i];
-            reactor_event* rev = (reactor_event*)ev->data.ptr;
-            //printf("epoll event fd: %d, ev: %d\n", rev->fd, ev->events);
-            rev->callback(ev);
+            epoll_event* ev = evs + i;
+            if(ev->events & EPOLLIN){
+                reactor_event* rev = (reactor_event*)ev->data.ptr;
+                //printf("epoll event fd: %d, ev: %d\n", rev->fd, ev->events);
+                rev->callback(ev);
+            } else {
+                printf("==== not EPOLLIN ==== events: %u\n",ev->events);
+            }
             i++;
         }
     }
